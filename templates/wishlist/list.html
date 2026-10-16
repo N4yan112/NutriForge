@@ -1,0 +1,22 @@
+{% extends 'accounts/dashboard_base.html' %}
+{% load shop_extras %}
+{% block title %}My Wishlist – NutriForge{% endblock %}
+{% block dashboard %}
+<h1 class="text-xl font-bold mb-4">My Wishlist</h1>
+{% for item in items %}
+<div class="flex gap-4 border rounded-lg p-3 mb-3">
+  <a href="{{ item.product.get_absolute_url }}">{% if item.product.image %}<img src="{{ item.product.image.url }}" alt="" class="w-20 h-20 rounded-lg object-cover">{% endif %}</a>
+  <div class="flex-1 min-w-0">
+    <a href="{{ item.product.get_absolute_url }}" class="font-semibold hover:text-orange-600">{{ item.product.name }}</a>
+    <p class="text-xs text-gray-500">{{ item.product.brand.name }}</p>
+    <p class="font-bold text-sm mt-1">{{ item.product.sale_price|inr }}</p>
+    <div class="flex gap-3 mt-2 text-sm">
+      <form method="post" action="{% url 'wishlist_move' item.pk %}">{% csrf_token %}
+        <button {% if not item.product.in_stock %}disabled{% endif %} class="bg-orange-500 disabled:bg-gray-300 text-white px-3 py-1 rounded-lg">{% if item.product.in_stock %}Move to Cart{% else %}Out of stock{% endif %}</button></form>
+      <form method="post" action="{% url 'wishlist_toggle' item.product.pk %}" data-confirm="Remove from wishlist?">{% csrf_token %}
+        <button class="text-red-600 hover:underline">Remove</button></form>
+    </div>
+  </div>
+</div>
+{% empty %}<p class="text-gray-500">Your wishlist is empty. <a class="text-orange-600" href="{% url 'product_list' %}">Browse products</a></p>{% endfor %}
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'accounts/dashboard_base.html' %}
+{% load shop_extras %}
+{% block title %}My Dashboard – NutriForge{% endblock %}
+{% block dashboard %}
+<h1 class="text-xl font-bold mb-4">Welcome back, {{ user.first_name|default:user.username }}!</h1>
+<div class="grid grid-cols-3 gap-3 mb-6 text-center">
+  <a href="{% url 'order_list' %}" class="rounded-lg bg-gray-900 text-white p-4"><b class="text-2xl text-orange-400">{{ order_count }}</b><br><span class="text-xs">Orders</span></a>
+  <a href="{% url 'wishlist' %}" class="rounded-lg bg-gray-900 text-white p-4"><b class="text-2xl text-orange-400">{{ wishlist_count }}</b><br><span class="text-xs">Wishlist</span></a>
+  <a href="{% url 'addresses' %}" class="rounded-lg bg-gray-900 text-white p-4"><b class="text-2xl text-orange-400">{{ address_count }}</b><br><span class="text-xs">Addresses</span></a>
+</div>
+<h2 class="font-bold mb-3">Recent orders</h2>
+{% for o in recent_orders %}
+  <a href="{% url 'order_detail' o.pk %}" class="flex justify-between border rounded-lg p-3 mb-2 text-sm hover:border-orange-500">
+    <span>{{ o.order_number }} · {{ o.created_at|date:"d M Y" }}</span>
+    <span><b>{{ o.total|inr }}</b> · {{ o.get_status_display }}</span>
+  </a>
+{% empty %}<p class="text-gray-500 text-sm">No orders yet. <a class="text-orange-600" href="{% url 'product_list' %}">Start shopping</a></p>{% endfor %}
+{% endblock %}

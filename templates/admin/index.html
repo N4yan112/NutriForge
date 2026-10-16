@@ -1,0 +1,29 @@
+{% extends "admin/index.html" %}
+{% block content %}
+<style>
+  .nf-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+  .nf-card{background:#111827;color:#fff;border-radius:10px;padding:16px}
+  .nf-card b{display:block;font-size:26px;color:#f97316}
+  .nf-card span{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#d1d5db}
+</style>
+<div class="nf-stats">
+  {% for label, value in stats %}
+  <div class="nf-card"><b>{{ value }}</b><span>{{ label }}</span></div>
+  {% endfor %}
+</div>
+<div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:24px">
+  <div style="flex:1;min-width:260px">
+    <h2>Low-stock products</h2>
+    {% for p in low_stock_products %}
+      <p><a href="{% url 'admin:products_product_change' p.pk %}">{{ p.name }}</a> – <b>{{ p.stock }}</b> left</p>
+    {% empty %}<p>All products are well stocked.</p>{% endfor %}
+  </div>
+  <div style="flex:1;min-width:260px">
+    <h2>Recent orders</h2>
+    {% for o in recent_orders %}
+      <p><a href="{% url 'admin:orders_order_change' o.pk %}">{{ o.order_number }}</a> – {{ o.user }} – ₹{{ o.total|floatformat:0 }} – {{ o.get_status_display }}</p>
+    {% empty %}<p>No orders yet.</p>{% endfor %}
+  </div>
+</div>
+{{ block.super }}
+{% endblock %}

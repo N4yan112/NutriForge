@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block title %}Checkout – NutriForge{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Checkout</h1>
+<form method="post" novalidate data-validate class="grid lg:grid-cols-3 gap-6">
+  {% csrf_token %}
+  <div class="lg:col-span-2 space-y-6">
+    <section class="bg-white rounded-xl shadow-sm p-5">
+      <h2 class="font-bold mb-3">1. Delivery address</h2>
+      <p class="text-sm text-gray-500 mb-3">Ordering as <b>{{ user.get_full_name|default:user.username }}</b> ({{ user.email }})</p>
+      <div class="space-y-2">
+        {% for a in saved_addresses %}
+        <label class="flex gap-3 border rounded-lg p-3 text-sm cursor-pointer has-[:checked]:border-orange-500">
+          <input type="radio" name="address" value="{{ a.pk }}" {% if selected == a.pk|stringformat:"s" %}checked{% endif %}>
+          <span><b>{{ a.full_name }}</b> · {{ a.phone }}<br>{{ a.line1 }} {{ a.line2 }}, {{ a.city }}, {{ a.state }} - {{ a.pincode }}</span></label>
+        {% endfor %}
+        <label class="flex gap-3 border rounded-lg p-3 text-sm cursor-pointer">
+          <input type="radio" name="address" value="" {% if not selected %}checked{% endif %}> <span><b>Use a new address</b></span></label>
+      </div>
+      <div id="new-address-form" class="mt-4 max-w-md">
+        {% with form=new_form %}{% include 'includes/form_fields.html' %}{% endwith %}
+      </div>
+    </section>
+
+    <section class="bg-white rounded-xl shadow-sm p-5">
+      <h2 class="font-bold mb-3">2. Payment method</h2>
+      <div class="space-y-2">
+        {% for key, label in payment_methods %}
+        <label class="flex gap-3 border rounded-lg p-3 text-sm cursor-pointer has-[:checked]:border-orange-500">
+          <input type="radio" name="payment_method" value="{{ key }}" {% if payment_method == key %}checked{% endif %}> {{ label }}</label>
+        {% endfor %}
+      </div>
+      <p class="text-xs text-gray-500 mt-2">Demo store: UPI/Card are simulated and are marked paid instantly. No real card or bank details are collected.</p>
+    </section>
+  </div>
+
+  <aside class="bg-white rounded-xl shadow-sm p-5 h-fit space-y-3">
+    <h2 class="font-bold text-lg">Order Summary</h2>
+    <ul class="text-sm divide-y">
+      {% for i in items %}<li class="flex justify-between py-2 gap-2"><span>{{ i.product.name }}{% if i.variant %} ({{ i.variant.flavour }}){% endif %} × {{ i.quantity }}</span><span>{{ i.line_total|inr }}</span></li>{% endfor %}
+    </ul>
+    <dl class="text-sm space-y-2">
+      <div class="flex justify-between"><dt>Subtotal</dt><dd>{{ totals.subtotal|inr }}</dd></div>
+      {% if totals.discount %}<div class="flex justify-between text-green-600"><dt>Discount{% if coupon %} ({{ coupon.code }}){% endif %}</dt><dd>− {{ totals.discount|inr }}</dd></div>{% endif %}
+      <div class="flex justify-between"><dt>Delivery charge</dt><dd>{% if totals.delivery %}{{ totals.delivery|inr }}{% else %}FREE{% endif %}</dd></div>
+      <div class="flex justify-between font-bold text-lg border-t pt-2"><dt>Total</dt><dd>{{ totals.total|inr }}</dd></div>
+    </dl>
+    <button class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg">Place Order</button>
+    <a href="{% url 'cart' %}" class="block text-center text-sm text-gray-500">← Back to cart</a>
+  </aside>
+</form>
+{% endblock %}

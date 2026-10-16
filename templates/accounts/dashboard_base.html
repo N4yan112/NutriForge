@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="grid md:grid-cols-4 gap-6">
+  <aside class="bg-white rounded-xl shadow p-4 h-fit">
+    <h2 class="font-bold mb-3">My Account</h2>
+    <ul class="space-y-2 text-sm">
+      <li><a href="{% url 'dashboard' %}" class="hover:text-orange-600">Dashboard</a></li>
+      <li><a href="{% url 'profile' %}" class="hover:text-orange-600">Profile</a></li>
+      <li><a href="{% url 'order_list' %}" class="hover:text-orange-600">My Orders</a></li>
+      <li><a href="{% url 'wishlist' %}" class="hover:text-orange-600">Wishlist</a></li>
+      <li><a href="{% url 'addresses' %}" class="hover:text-orange-600">Saved Addresses</a></li>
+      <li><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="text-red-600 hover:underline">Logout</button></form></li>
+    </ul>
+  </aside>
+  <section class="md:col-span-3 bg-white rounded-xl shadow p-6">{% block dashboard %}{% endblock %}</section>
+</div>
+{% endblock %}

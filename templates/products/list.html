@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Shop Supplements – NutriForge{% endblock %}
+{% block content %}
+<div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+  <div>
+    <h1 class="text-2xl font-bold">{% if current.q %}Results for “{{ current.q }}”{% else %}All Supplements{% endif %}</h1>
+    <p class="text-sm text-gray-500">{{ page.paginator.count }} product{{ page.paginator.count|pluralize }}</p>
+  </div>
+  <div class="flex items-center gap-2">
+    <button id="filter-toggle" type="button" class="lg:hidden border rounded-lg px-4 py-2 text-sm bg-white">Filters</button>
+    <form method="get">
+      {% for k, v in current.items %}{% if k != 'sort' and v %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endif %}{% endfor %}
+      <select id="sort-select" name="sort" class="border rounded-lg px-3 py-2 text-sm bg-white">
+        {% for key, label in sort_options %}<option value="{{ key }}" {% if current.sort == key %}selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select>
+    </form>
+  </div>
+</div>
+
+<div class="grid lg:grid-cols-4 gap-6">
+  <aside id="filter-panel" class="hidden lg:block">
+    <form id="filter-form" method="get" class="bg-white rounded-xl shadow-sm p-4 space-y-4 text-sm">
+      <input type="hidden" name="sort" value="{{ current.sort }}">
+      {% if current.q %}<input type="hidden" name="q" value="{{ current.q }}">{% endif %}
+      <div><label class="font-semibold block mb-1">Category</label>
+        <select name="category" class="w-full border rounded-lg px-2 py-2"><option value="">All</option>
+          {% for c in categories %}<option value="{{ c.slug }}" {% if current.category == c.slug %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+      <div><label class="font-semibold block mb-1">Brand</label>
+        <select name="brand" class="w-full border rounded-lg px-2 py-2"><option value="">All</option>
+          {% for b in brands %}<option value="{{ b.slug }}" {% if current.brand == b.slug %}selected{% endif %}>{{ b.name }}</option>{% endfor %}</select></div>
+      <div><label class="font-semibold block mb-1">Product type</label>
+        <select name="type" class="w-full border rounded-lg px-2 py-2"><option value="">All</option>
+          {% for k, l in type_choices %}<option value="{{ k }}" {% if current.type == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+      <div><label class="font-semibold block mb-1">Dietary preference</label>
+        <select name="diet" class="w-full border rounded-lg px-2 py-2"><option value="">Any</option>
+          {% for k, l in diet_choices %}<option value="{{ k }}" {% if current.diet == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div>
+      <div><label class="font-semibold block mb-1">Minimum rating</label>
+        <select name="rating" class="w-full border rounded-lg px-2 py-2"><option value="">Any</option>
+          {% for n in "432" %}<option value="{{ n }}" {% if current.rating == n %}selected{% endif %}>{{ n }}★ &amp; up</option>{% endfor %}</select></div>
+      <div><label class="font-semibold block mb-1">Price range (₹)</label>
+        <div class="flex gap-2">
+          <input type="number" name="min_price" min="0" value="{{ current.min_price }}" placeholder="Min" class="w-1/2 border rounded-lg px-2 py-2">
+          <input type="number" name="max_price" min="0" value="{{ current.max_price }}" placeholder="Max" class="w-1/2 border rounded-lg px-2 py-2"></div></div>
+      <label class="flex items-center gap-2"><input type="checkbox" name="offers" value="1" {% if current.offers %}checked{% endif %}> On offer only</label>
+      <div class="flex gap-2">
+        <button class="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg">Apply</button>
+        <a href="{% url 'product_list' %}" class="flex-1 text-center border rounded-lg py-2">Reset</a></div>
+    </form>
+  </aside>
+
+  <section class="lg:col-span-3">
+    {% if page.object_list %}
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">{% for p in page.object_list %}{% include 'includes/product_card.html' %}{% endfor %}</div>
+      {% if page.paginator.num_pages > 1 %}
+      <div class="flex justify-center items-center gap-2 mt-8 text-sm">
+        {% if page.has_previous %}<a class="border rounded-lg px-4 py-2 bg-white" href="?{{ querystring }}&page={{ page.previous_page_number }}">← Prev</a>{% endif %}
+        <span>Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+        {% if page.has_next %}<a class="border rounded-lg px-4 py-2 bg-white" href="?{{ querystring }}&page={{ page.next_page_number }}">Next →</a>{% endif %}
+      </div>{% endif %}
+    {% else %}
+      <div class="bg-white rounded-xl p-10 text-center text-gray-500">No products match your search. <a class="text-orange-600" href="{% url 'product_list' %}">Clear filters</a></div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

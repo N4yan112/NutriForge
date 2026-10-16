@@ -1,0 +1,14 @@
+{% extends 'accounts/dashboard_base.html' %}
+{% load shop_extras %}
+{% block title %}My Orders – NutriForge{% endblock %}
+{% block dashboard %}
+<h1 class="text-xl font-bold mb-4">My Orders</h1>
+{% for o in orders %}
+<a href="{% url 'order_detail' o.pk %}" class="block border rounded-lg p-4 mb-3 hover:border-orange-500">
+  <div class="flex justify-between text-sm"><b>{{ o.order_number }}</b>
+    <span class="px-2 py-0.5 rounded text-xs font-semibold {% if o.status == 'cancelled' %}bg-red-100 text-red-700{% elif o.status == 'delivered' %}bg-green-100 text-green-700{% else %}bg-orange-100 text-orange-700{% endif %}">{{ o.get_status_display }}</span></div>
+  <p class="text-xs text-gray-500">{{ o.created_at|date:"d M Y, h:i A" }} · {{ o.items.count }} item{{ o.items.count|pluralize }}</p>
+  <p class="font-bold mt-1">{{ o.total|inr }}</p>
+</a>
+{% empty %}<p class="text-gray-500">You have not placed any orders yet.</p>{% endfor %}
+{% endblock %}

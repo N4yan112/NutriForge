@@ -1,0 +1,46 @@
+{% extends 'accounts/dashboard_base.html' %}
+{% load shop_extras %}
+{% block title %}{{ order.order_number }} – NutriForge{% endblock %}
+{% block dashboard %}
+<div class="flex flex-wrap justify-between items-center gap-2 mb-4">
+  <div><h1 class="text-xl font-bold">Order {{ order.order_number }}</h1>
+    <p class="text-xs text-gray-500">Placed on {{ order.created_at|date:"d M Y, h:i A" }}</p></div>
+  {% if order.can_cancel %}
+  <form method="post" action="{% url 'order_cancel' order.pk %}" data-confirm="Cancel this order?">{% csrf_token %}
+    <button class="border border-red-400 text-red-600 text-sm px-4 py-2 rounded-lg hover:bg-red-50">Cancel order</button></form>{% endif %}
+</div>
+
+<!-- Order tracking: Placed → Confirmed → Packed → Shipped → Delivered -->
+{% if order.status == 'cancelled' %}
+  <p class="bg-red-50 text-red-700 rounded-lg px-4 py-3 text-sm mb-6">This order was cancelled.</p>
+{% else %}
+<ol class="flex mb-8">
+  {% for label, done, current in order.steps %}
+  <li class="flex-1 text-center relative">
+    <div class="mx-auto w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold z-10 relative {% if done %}bg-orange-500 text-white{% else %}bg-gray-200 text-gray-500{% endif %} {% if current %}ring-4 ring-orange-200{% endif %}">{% if done %}✓{% else %}{{ forloop.counter }}{% endif %}</div>
+    {% if not forloop.last %}<div class="absolute top-4 left-1/2 w-full h-0.5 {% if done and not current %}bg-orange-500{% else %}bg-gray-200{% endif %}"></div>{% endif %}
+    <p class="text-[11px] sm:text-xs mt-2 {% if current %}font-bold{% endif %}">{{ label }}</p>
+  </li>{% endfor %}
+</ol>{% endif %}
+
+<div class="grid sm:grid-cols-2 gap-4 text-sm mb-6">
+  <div class="border rounded-lg p-4"><h3 class="font-semibold mb-1">Delivery address</h3>
+    <p>{{ order.full_name }} · {{ order.phone }}</p><p>{{ order.address }}</p><p>{{ order.city }}, {{ order.state }} - {{ order.pincode }}</p></div>
+  <div class="border rounded-lg p-4"><h3 class="font-semibold mb-1">Payment</h3>
+    <p>{{ order.payment.get_method_display }}</p><p>Status: <b>{{ order.payment.get_status_display }}</b></p>
+    {% if order.payment.transaction_id %}<p class="text-xs text-gray-500">Txn: {{ order.payment.transaction_id }}</p>{% endif %}</div>
+</div>
+
+<table class="w-full text-sm">
+  <thead><tr class="text-left text-gray-500 border-b"><th class="py-2">Item</th><th>Price</th><th>Qty</th><th class="text-right">Total</th></tr></thead>
+  {% for i in order.items.all %}
+  <tr class="border-b"><td class="py-2">{% if i.product %}<a class="hover:text-orange-600" href="{{ i.product.get_absolute_url }}">{{ i.product_name }}</a>{% else %}{{ i.product_name }}{% endif %}{% if i.flavour %}<br><span class="text-xs text-gray-500">{{ i.flavour }}</span>{% endif %}</td>
+    <td>{{ i.price|inr }}</td><td>{{ i.quantity }}</td><td class="text-right">{{ i.line_total|inr }}</td></tr>{% endfor %}
+</table>
+<dl class="text-sm mt-4 space-y-1 max-w-xs ml-auto">
+  <div class="flex justify-between"><dt>Subtotal</dt><dd>{{ order.subtotal|inr }}</dd></div>
+  {% if order.discount %}<div class="flex justify-between text-green-600"><dt>Discount ({{ order.coupon_code }})</dt><dd>− {{ order.discount|inr }}</dd></div>{% endif %}
+  <div class="flex justify-between"><dt>Delivery</dt><dd>{% if order.delivery_charge %}{{ order.delivery_charge|inr }}{% else %}FREE{% endif %}</dd></div>
+  <div class="flex justify-between font-bold text-base border-t pt-1"><dt>Total</dt><dd>{{ order.total|inr }}</dd></div>
+</dl>
+{% endblock %}

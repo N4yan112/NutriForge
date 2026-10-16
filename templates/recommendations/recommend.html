@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Find My Supplement – NutriForge{% endblock %}
+{% block content %}
+<div class="grid lg:grid-cols-3 gap-6">
+  <div class="bg-white rounded-xl shadow p-6 h-fit">
+    <h1 class="text-xl font-bold mb-1">Find My Supplement</h1>
+    <p class="text-sm text-gray-500 mb-4">Tell us about yourself and we will suggest products from our store.</p>
+    <form method="get" novalidate>
+      {% include 'includes/form_fields.html' %}
+      <button class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg">Recommend</button>
+    </form>
+  </div>
+  <div class="lg:col-span-2">
+    {% if results is None %}
+      <div class="bg-white rounded-xl p-10 text-center text-gray-500">Fill in the form to get your personal recommendations. 🎯</div>
+    {% elif results %}
+      <h2 class="text-xl font-bold mb-4">Recommended for you</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">{% for p in results %}{% include 'includes/product_card.html' %}{% endfor %}</div>
+    {% else %}
+      <div class="bg-white rounded-xl p-10 text-center text-gray-500">No products match all your answers. Try a higher budget or a different supplement type.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

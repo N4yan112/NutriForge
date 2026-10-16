@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block title %}Shopping Cart – NutriForge{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Shopping Cart</h1>
+{% if items %}
+<div class="grid lg:grid-cols-3 gap-6">
+  <div class="lg:col-span-2 space-y-3">
+    {% for item in items %}
+    <div class="bg-white rounded-xl shadow-sm p-4 flex gap-4">
+      <a href="{{ item.product.get_absolute_url }}" class="shrink-0">
+        {% if item.product.image %}<img src="{{ item.product.image.url }}" alt="" class="w-20 h-20 sm:w-24 sm:h-24 rounded-lg object-cover">{% else %}<div class="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center text-3xl">💪</div>{% endif %}</a>
+      <div class="flex-1 min-w-0">
+        <a href="{{ item.product.get_absolute_url }}" class="font-semibold hover:text-orange-600">{{ item.product.name }}</a>
+        <p class="text-xs text-gray-500">{{ item.product.brand.name }}{% if item.variant %} · {{ item.variant.flavour }}{% endif %}</p>
+        <p class="text-sm mt-1">{{ item.product.sale_price|inr }} each</p>
+        {% if not item.product.in_stock %}<p class="text-xs text-red-600">Currently out of stock</p>{% endif %}
+        <div class="flex flex-wrap items-center gap-3 mt-2">
+          <form method="post" action="{% url 'cart_update' item.pk %}" class="flex items-center gap-2">
+            {% csrf_token %}
+            <div data-qty class="inline-flex items-center border rounded-lg overflow-hidden text-sm">
+              <button type="button" data-dec class="px-3 py-1 hover:bg-gray-100">−</button>
+              <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ max_qty }}" class="w-12 text-center py-1 outline-none">
+              <button type="button" data-inc class="px-3 py-1 hover:bg-gray-100">+</button></div>
+            <button class="text-sm text-orange-600 font-semibold">Update</button>
+          </form>
+          <form method="post" action="{% url 'cart_remove' item.pk %}" data-confirm="Remove this item from your cart?">
+            {% csrf_token %}<button class="text-sm text-red-600 hover:underline">Remove</button></form>
+        </div>
+      </div>
+      <div class="text-right font-bold">{{ item.line_total|inr }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <aside class="bg-white rounded-xl shadow-sm p-5 h-fit space-y-4">
+    <h2 class="font-bold text-lg">Order Summary</h2>
+    {% if coupon %}
+      <div class="flex justify-between items-center bg-green-50 text-green-700 rounded-lg px-3 py-2 text-sm">
+        <span>Coupon <b>{{ coupon.code }}</b> applied</span>
+        <form method="post" action="{% url 'coupon_remove' %}">{% csrf_token %}<button class="underline">Remove</button></form></div>
+    {% else %}
+      <form method="post" action="{% url 'coupon_apply' %}" class="flex gap-2">
+        {% csrf_token %}
+        <input name="code" placeholder="Coupon code" class="flex-1 min-w-0 border rounded-lg px-3 py-2 text-sm uppercase">
+        <button class="bg-gray-900 text-white text-sm px-4 rounded-lg">Apply</button></form>{% endif %}
+    <dl class="text-sm space-y-2">
+      <div class="flex justify-between"><dt>Subtotal</dt><dd>{{ totals.subtotal|inr }}</dd></div>
+      {% if totals.discount %}<div class="flex justify-between text-green-600"><dt>Discount</dt><dd>− {{ totals.discount|inr }}</dd></div>{% endif %}
+      <div class="flex justify-between"><dt>Delivery</dt><dd>{% if totals.delivery %}{{ totals.delivery|inr }}{% else %}FREE{% endif %}</dd></div>
+      <div class="flex justify-between font-bold text-lg border-t pt-2"><dt>Total</dt><dd>{{ totals.total|inr }}</dd></div>
+    </dl>
+    {% if totals.delivery %}<p class="text-xs text-gray-500">Add more items to reach {{ free_delivery_above|inr }} and get free delivery.</p>{% endif %}
+    <a href="{% url 'checkout' %}" class="block text-center bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg">Proceed to Checkout</a>
+  </aside>
+</div>
+{% else %}
+<div class="bg-white rounded-xl p-12 text-center">
+  <p class="text-5xl mb-3">🛒</p><p class="text-gray-600">Your cart is empty.</p>
+  <a href="{% url 'product_list' %}" class="inline-block mt-4 bg-orange-500 text-white font-semibold px-6 py-2 rounded-lg">Browse products</a></div>
+{% endif %}
+{% endblock %}

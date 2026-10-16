@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Contact Us – NutriForge{% endblock %}
+{% block content %}
+<h1 class="text-3xl font-extrabold mb-6">Contact Us</h1>
+<div class="grid lg:grid-cols-2 gap-8">
+  <div class="bg-white rounded-xl shadow p-6">
+    <form method="post" novalidate data-validate>
+      {% csrf_token %}
+      {% include 'includes/form_fields.html' %}
+      <button class="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2 rounded-lg">Send message</button>
+    </form>
+  </div>
+  <div>
+    <div class="bg-white rounded-xl shadow p-6 mb-6 text-sm space-y-2">
+      <p><b>Email:</b> support@nutriforge.example</p>
+      <p><b>Phone:</b> +91 98765 43210</p>
+      <p><b>Address:</b> NutriForge, 12 Fitness Street, Pune, Maharashtra 411001</p>
+    </div>
+    <h2 class="font-bold text-lg mb-3">Frequently Asked Questions</h2>
+    <div class="space-y-2">
+      {% for q, a in faqs %}
+      <details class="bg-white rounded-lg shadow-sm p-4"><summary class="font-semibold cursor-pointer">{{ q }}</summary><p class="text-sm text-gray-600 mt-2">{{ a }}</p></details>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'accounts/dashboard_base.html' %}
+{% block title %}Saved Addresses – NutriForge{% endblock %}
+{% block dashboard %}
+<h1 class="text-xl font-bold mb-4">Saved Addresses</h1>
+<div class="grid sm:grid-cols-2 gap-4 mb-8">
+  {% for a in addresses %}
+  <div class="border rounded-lg p-4 text-sm">
+    <p class="font-semibold">{{ a.full_name }}
+      {% if a.is_default %}<span class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">Default</span>{% endif %}</p>
+    <p>{{ a.line1 }} {{ a.line2 }}</p>
+    <p>{{ a.city }}, {{ a.state }} - {{ a.pincode }}</p>
+    <p>Phone: {{ a.phone }}</p>
+    <form method="post" action="{% url 'delete_address' a.pk %}" class="mt-2" data-confirm="Delete this address?">
+      {% csrf_token %}<button class="text-red-600 hover:underline">Delete</button>
+    </form>
+  </div>
+  {% empty %}<p class="text-gray-500">No saved addresses yet.</p>{% endfor %}
+</div>
+<h2 class="font-bold mb-3">Add new address</h2>
+<form method="post" class="max-w-md" novalidate data-validate>
+  {% csrf_token %}
+  {% include 'includes/form_fields.html' %}
+  <button class="px-6 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg">Save address</button>
+</form>
+{% endblock %}

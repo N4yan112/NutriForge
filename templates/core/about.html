@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}About Us – NutriForge{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <h1 class="text-3xl font-extrabold mb-4">About <span class="text-orange-500">NutriForge</span></h1>
+  <p class="text-gray-600 mb-4">NutriForge is an online store built to make buying fitness supplements simple, honest and affordable. Whether you are lifting for the first time or training for a marathon, we help you find the right protein, creatine, vitamins and accessories without confusing labels or inflated prices.</p>
+  <div class="grid sm:grid-cols-3 gap-4 my-8 text-center">
+    <div class="bg-white rounded-xl shadow-sm p-5"><b class="text-xl text-orange-500">Our Mission</b><p class="text-sm mt-2 text-gray-600">Make quality nutrition accessible to every Indian athlete.</p></div>
+    <div class="bg-white rounded-xl shadow-sm p-5"><b class="text-xl text-orange-500">Our Promise</b><p class="text-sm mt-2 text-gray-600">Only sealed, genuine products with clear ingredient and nutrition details.</p></div>
+    <div class="bg-white rounded-xl shadow-sm p-5"><b class="text-xl text-orange-500">Our Tools</b><p class="text-sm mt-2 text-gray-600">Smart search, filters and a supplement finder that matches products to your goal.</p></div>
+  </div>
+  <p class="text-gray-500 text-sm">NutriForge is a demonstration project created for a BCA final-year submission. Products, prices and payments are for demonstration only.</p>
+  <a href="{% url 'product_list' %}" class="inline-block mt-6 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 py-2 rounded-lg">Start Shopping</a>
+</div>
+{% endblock %}

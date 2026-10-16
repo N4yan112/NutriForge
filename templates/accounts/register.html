@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Register – NutriForge{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-xl shadow p-8">
+  <h1 class="text-2xl font-bold mb-6">Create your account</h1>
+  <form method="post" novalidate data-validate>
+    {% csrf_token %}
+    {% include 'includes/form_fields.html' %}
+    <button class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg">Register</button>
+  </form>
+  <p class="text-sm mt-4">Already have an account? <a href="{% url 'login' %}" class="text-orange-600">Login</a></p>
+</div>
+{% endblock %}

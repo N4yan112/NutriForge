@@ -1,0 +1,11 @@
+{% extends 'accounts/dashboard_base.html' %}
+{% block title %}My Profile – NutriForge{% endblock %}
+{% block dashboard %}
+<h1 class="text-xl font-bold mb-1">Account information</h1>
+<p class="text-sm text-gray-500 mb-4">Username: <b>{{ user.username }}</b> · Member since {{ user.date_joined|date:"d M Y" }}</p>
+<form method="post" class="max-w-md" novalidate data-validate>
+  {% csrf_token %}
+  {% include 'includes/form_fields.html' %}
+  <button class="px-6 bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg">Save</button>
+</form>
+{% endblock %}

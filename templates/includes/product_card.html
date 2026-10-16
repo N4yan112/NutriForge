@@ -1,0 +1,44 @@
+{% load shop_extras %}
+<div class="group bg-white rounded-xl shadow-sm hover:shadow-xl transition flex flex-col overflow-hidden">
+  <div class="relative overflow-hidden bg-gray-100">
+    <a href="{{ p.get_absolute_url }}">
+      {% if p.image %}<img src="{{ p.image.url }}" alt="{{ p.name }}" loading="lazy" class="w-full aspect-square object-cover group-hover:scale-105 transition duration-300">
+      {% else %}<div class="aspect-square flex items-center justify-center text-6xl">💪</div>{% endif %}
+    </a>
+    <div class="absolute top-2 left-2 flex flex-col gap-1">
+      {% if p.is_best_seller %}<span class="bg-orange-500 text-white text-[11px] font-bold px-2 py-0.5 rounded">Best Seller</span>{% endif %}
+      {% if p.is_new %}<span class="bg-blue-600 text-white text-[11px] font-bold px-2 py-0.5 rounded">New</span>{% endif %}
+      {% if p.on_sale %}<span class="bg-red-600 text-white text-[11px] font-bold px-2 py-0.5 rounded">Sale {{ p.discount_percent }}% off</span>{% endif %}
+    </div>
+    <form method="post" action="{% url 'wishlist_toggle' p.pk %}" class="ajax-form absolute top-2 right-2">
+      {% csrf_token %}
+      <button type="submit" data-wishlist-btn data-active="{% if p.pk in wishlist_ids %}true{% else %}false{% endif %}"
+              class="wish-btn bg-white/90 rounded-full p-2 shadow hover:scale-110 transition" aria-label="Toggle wishlist">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/></svg>
+      </button>
+    </form>
+  </div>
+  <div class="p-4 flex-1 flex flex-col">
+    <p class="text-xs uppercase tracking-wide text-gray-500">{{ p.brand.name }}</p>
+    <a href="{{ p.get_absolute_url }}" class="font-semibold leading-snug hover:text-orange-600 line-clamp-2 min-h-[2.5rem]">{{ p.name }}</a>
+    <div class="flex items-center gap-1 text-sm mt-1">
+      {% include 'includes/stars.html' with rating=p.rating_rounded %}
+      <span class="text-xs text-gray-500">({{ p.review_count }})</span>
+    </div>
+    <div class="mt-2 flex items-baseline gap-2">
+      <span class="text-lg font-bold">{{ p.sale_price|inr }}</span>
+      {% if p.on_sale %}<span class="text-sm text-gray-400 line-through">{{ p.price|inr }}</span>
+      <span class="text-xs font-semibold text-green-600">{{ p.discount_percent }}% off</span>{% endif %}
+    </div>
+    <p class="text-xs mt-1 {% if not p.in_stock %}text-red-600{% elif p.is_low_stock %}text-orange-600{% else %}text-green-600{% endif %}">
+      {% if not p.in_stock %}Out of stock{% elif p.is_low_stock %}Only {{ p.stock }} left{% else %}In stock{% endif %}
+    </p>
+    <div class="mt-auto pt-3 grid grid-cols-2 gap-2">
+      <form method="post" action="{% url 'cart_add' p.pk %}" class="ajax-form">
+        {% csrf_token %}<input type="hidden" name="quantity" value="1">
+        <button {% if not p.in_stock %}disabled{% endif %} class="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white text-sm font-semibold py-2 rounded-lg transition">Add to Cart</button>
+      </form>
+      <a href="{{ p.get_absolute_url }}" class="text-center border border-gray-300 hover:border-orange-500 hover:text-orange-600 text-sm font-semibold py-2 rounded-lg transition">View Details</a>
+    </div>
+  </div>
+</div>
